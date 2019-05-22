@@ -115,3 +115,4 @@ machineID.ini
 systeminfo*.txt
 resource/
 #client/src/offer/__init__.py
+tool/*

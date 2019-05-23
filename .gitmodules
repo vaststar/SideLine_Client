@@ -1,0 +1,4 @@
+[submodule "tool"]
+	path = tool
+	url = https://github.com/vaststar/SideLine_Tool.git
+	ignore = dirty

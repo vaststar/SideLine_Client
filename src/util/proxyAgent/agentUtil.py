@@ -13,6 +13,7 @@ class AgentUtil(object):
         while not Agent_911.changeIP(city, state, country):
             print('ip change faliure,restart change')
             sleep(1)
+        sleep(5)
         print('test ip address ')
         IPInfo = AgentUtil.get_IP_info()
         if not IPInfo:

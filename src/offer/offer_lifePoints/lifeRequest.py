@@ -12,6 +12,7 @@ class LifeReq(object):
     def __init__(self):
         self.host=serverhost
     def getUnRegisterInformation(self,country=("CHN",),number=None):
+        print(country)
         '''获取number个未注册信息，number=none表示全部获取'''
         allEmails=HTTPRequest.get(self.host+"/emails/")['data']
         print('邮箱数量',len(allEmails))

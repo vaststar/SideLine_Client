@@ -205,7 +205,7 @@ if __name__=='__main__':
             runType=4
         elif name in ('--threadNum',):
             runThread=int(value)
-        elif name in ('--registerCountry',):
+        elif name in ('--country',):
             country = tuple(str(value).split(','))
         elif name in ('--runTime',):
             offerDoTime=int(value)
@@ -219,6 +219,7 @@ if __name__=='__main__':
             checkAllEmail=True
 
     if runType==0:
+        print('cc',country)
         LifePointsRun.registerJob(regCountry=country,regNumber=registerNum,threadNum=runThread)
     elif runType==1:
         LifePointsRun.runJob(jobCountry=country,jobNum=offerNumber, runTime=offerDoTime, threadNum=runThread,stayInfo=keepInfo,stayIP=keepIP,timeoutSec=sectimeout)

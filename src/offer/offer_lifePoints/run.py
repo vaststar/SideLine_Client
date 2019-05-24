@@ -84,9 +84,12 @@ class LifePointsRun(object):
                 print('ip change failure,change another identity')
                 time.sleep(1)
                 LifeReq().addIdentityError(registInformation.get('identity_id'),'cannot change ip to city:'+registInformation.get('city'),'0')
-                registInformation = LifeReq().getUnRegisterInformation((registInformation.get('country'),),1)
+                res = LifeReq().getUnRegisterInformation((registInformation.get('country'),),1)
+                if not res:
+                    print('there is no unregistered information')
+                registInformation=res[0]
                 if not registInformation:
-                    print('not unregistered information')
+                    print('information none')
                     break
         if registInformation:
             RegisterPage().doJob(registInformation)

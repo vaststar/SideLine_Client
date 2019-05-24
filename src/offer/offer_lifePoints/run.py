@@ -1,5 +1,4 @@
 import sys,getopt,threadpool,re,os,shutil,time,mysql.connector
-from functools import wraps
 from urllib import request
 sys.path.append('.')
 sys.path.append('..')
@@ -11,20 +10,6 @@ from src.offer.offer_lifePoints.dealCard import DealCard
 from src.LogMoule import logger
 from src.util.computerInfo import ComputerUtil
 from src.util.proxyAgent import AgentUtil
-
-def ip_info_change_required(*dargs, **dkargs):
-    def wrapper(func):
-        @wraps(func)
-        def _wrapper(*args, **kwargs):
-            if not kwargs.get('stayIP'):
-                while not AgentUtil.changeIP(city=dkargs.get('city'), state=dkargs.get('state'), country=dkargs.get('country')):
-                    logger.error('ip change failure')
-                    time.sleep(1)
-            func(*args, **kwargs)
-            if not kwargs.get('stayInfo'):
-                ComputerUtil.CleanAndChangeInfo()
-        return _wrapper
-    return wrapper
 
 class LifePointsRun(object):
     @staticmethod
@@ -53,28 +38,29 @@ class LifePointsRun(object):
             print(e)
 
     @staticmethod
-    def runOneJob(information,runTime):
+    def runOneJob(information,runTime,stayIP=False):
+        if stayIP or not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country')):
+            return None
         MainPage(information).doJob(runTime)
 
     @staticmethod
-    @ip_info_change_required(city='ALL',state='ALL',country='CN')
-    def runJob(jobNum=1,runTime=None,threadNum=1,stayInfo=False,stayIP=False,timeoutSec=24000):
+    def runJob(jobCountry=("US",),jobNum=1,runTime=None,threadNum=1,stayInfo=False,stayIP=False,timeoutSec=24000):
         LifePointsRun.writeAllToken_from_db()
         while True:
             #清空cache
             if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cache')):
                 shutil.rmtree(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cache'))
             #清空超时任务
-            LifeReq().freeTimeOutJob()
+            LifeReq().freeTimeOutJob(timeoutSecs=timeoutSec)
             #清空本机器控制的任务
             LifeReq().freeMachine()
             try:
-                accounts = LifeReq().getAvailableJob(country=("CHN",), number=jobNum)
+                accounts = LifeReq().getAvailableJob(country=jobCountry, number=jobNum)
                 for item in accounts:
                     LifeReq().busyDoJob(item['life_id'])
                 # 创建多线程运行
                 pool = threadpool.ThreadPool(threadNum)
-                data = [((index, runTime), None) for index in accounts]
+                data = [((index, runTime, stayIP), None) for index in accounts]
                 requests = threadpool.makeRequests(LifePointsRun.runOneJob, data)
                 [pool.putRequest(req) for req in requests]
                 pool.wait()
@@ -86,19 +72,27 @@ class LifePointsRun(object):
                 #清空本机器控制的任务
                 LifeReq().freeMachine()
                 if not stayInfo:
+                    ComputerUtil.CleanAndChangeInfo()
                     return None
 
     @staticmethod
     def registerOne(information):
-        if information.get('country') != 'CHN':
+        registInformation=information
+        if registInformation.get('country') != 'CHN':
             #外国号注册时需换ip
-            while not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country')):
-                logger.error('ip change failure')
+            while not AgentUtil.changeIP(city=registInformation.get('city'), state=registInformation.get('state'), country=registInformation.get('country')):
+                print('ip change failure,change another identity')
                 time.sleep(1)
-        RegisterPage().doJob(information)
+                LifeReq().addIdentityError(registInformation.get('identity_id'),'cannot change ip to city:'+registInformation.get('city'),'0')
+                registInformation = LifeReq().getUnRegisterInformation((registInformation.get('country'),),1)
+                if not registInformation:
+                    print('not unregistered information')
+                    break
+        if registInformation:
+            RegisterPage().doJob(registInformation)
     @staticmethod
-    def registerJob(regNumber=None,threadNum=1):
-        allInfo = LifeReq().getUnRegisterInformation(("US",), regNumber)
+    def registerJob(regCountry=('US',),regNumber=None,threadNum=1):
+        allInfo = LifeReq().getUnRegisterInformation(regCountry, regNumber)
         pool = threadpool.ThreadPool(threadNum)
         data = [((index,), None) for index in allInfo]
         requests = threadpool.makeRequests(LifePointsRun.registerOne, data)
@@ -174,11 +168,12 @@ class LifePointsRun(object):
 
 if __name__=='__main__':
     try:
-        options, arg = getopt.getopt(sys.argv[1:], "",['threadNum=','register=','runjob=','runTime=','timeoutSec=','stayInfo','stayIP','recheckAccount','recheckOrder','checkAll','checkCard'])
+        options, arg = getopt.getopt(sys.argv[1:], "",['threadNum=','country=','register=','runjob=','runTime=','timeoutSec=','stayInfo','stayIP','recheckAccount','recheckOrder','checkAll','checkCard'])
     except getopt.GetoptError:
         sys.exit()
     runType=-1
     runThread=1
+    country=('CHN',)
     #注册参数（个数+线程数），个数为-1，表示全部做
     registerNum=None
     #做任务参数
@@ -210,6 +205,8 @@ if __name__=='__main__':
             runType=4
         elif name in ('--threadNum',):
             runThread=int(value)
+        elif name in ('--registerCountry',):
+            country = tuple(str(value).split(','))
         elif name in ('--runTime',):
             offerDoTime=int(value)
         elif name in ('--timeoutSec',):
@@ -222,9 +219,9 @@ if __name__=='__main__':
             checkAllEmail=True
 
     if runType==0:
-        LifePointsRun.registerJob(regNumber=registerNum,threadNum=runThread)
+        LifePointsRun.registerJob(regCountry=country,regNumber=registerNum,threadNum=runThread)
     elif runType==1:
-        LifePointsRun.runJob(jobNum=offerNumber, runTime=offerDoTime, threadNum=runThread,stayInfo=keepInfo,stayIP=keepIP,timeoutSec=sectimeout)
+        LifePointsRun.runJob(jobCountry=country,jobNum=offerNumber, runTime=offerDoTime, threadNum=runThread,stayInfo=keepInfo,stayIP=keepIP,timeoutSec=sectimeout)
     elif runType==2:
         LifePointsRun.recheckAccounts(threadNum=runThread)
     elif runType==3:

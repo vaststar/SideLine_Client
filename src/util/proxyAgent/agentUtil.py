@@ -6,7 +6,26 @@ from .Agent_911 import Agent_911
 class AgentUtil(object):
     @staticmethod
     def changeIP(city=None, state='All', country="US"):
-        return Agent_911.changeIP(city, state, country)
+        IPInfo = AgentUtil.get_IP_info()
+        if IPInfo and IPInfo.get('city')==city:
+            print('ip city match')
+            return True
+        while not Agent_911.changeIP(city, state, country):
+            print('ip change faliure,restart change')
+            sleep(1)
+        print('test ip address ')
+        IPInfo = AgentUtil.get_IP_info()
+        if not IPInfo:
+            print('cannot get ipaddress from whoer')
+            return False
+
+        if IPInfo.get('city')==city:
+            print('ip city match')
+            return True
+        else:
+            print('ip is',IPInfo)
+            print('not ',city)
+            return False
 
     @staticmethod
     def get_IP_info():
@@ -14,7 +33,7 @@ class AgentUtil(object):
                                   , 'tool/webdriver', 'chromedriver_74.exe')
         options = webdriver.ChromeOptions()
         options.add_argument('--incognito')
-        # options.add_argument('--headless')
+        options.add_argument('--headless')
         chrome_driver = webdriver.Chrome(driverpath,chrome_options=options)
         chrome_driver.get('https://whoer.net')
         sleep(5)

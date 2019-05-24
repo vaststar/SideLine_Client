@@ -19,9 +19,12 @@ class LifeReq(object):
         print('身份数量',len(allIdentities))
         allBrowser=HTTPRequest.get(self.host+"/browsers/")['data']
         print('ua数量',len(allBrowser))
-        allErrors = HTTPRequest.get(self.host + "/lifepoints/errors/")['data']
+        allErrors = HTTPRequest.get(self.host + "/lifepoints/errors/emails/")['data']
+        print('问题邮箱数量', len(allErrors))
         allAccounts= HTTPRequest.get(self.host + "/lifepoints/accounts/")['data']
-        print('账户数量',len(allAccounts))
+        print('已注册账户数量',len(allAccounts))
+        allIdentityErrors = HTTPRequest.get(self.host + "/lifepoints/errors/identities/")['data']
+        print('问题地址数量', len(allIdentityErrors))
         #获取可用email
         emails=[]
         for emailInfo in allEmails:
@@ -41,7 +44,10 @@ class LifeReq(object):
             if isLegal:
                 emails.append(emailInfo)
         identities=[]
-        allIdentities=list(filter(lambda x: x['country'] in country,allIdentities))
+        allIdentities=list(filter(lambda x: x['country'] in country,allIdentities))#筛选国家
+        allIdentityErrorID = []
+        [allIdentityErrorID.append(i.get('identity_id')) for i in allIdentityErrors]
+        allIdentities=list(filter(lambda x: x['identity_id'] not in allIdentityErrorID,allIdentities))#筛选无用身份
         for iden in allIdentities:
             if len(identities)==len(emails):
                 break
@@ -131,6 +137,7 @@ class LifeReq(object):
             if identity is None or identity['country'] not in country:
                 continue
             job = HTTPRequest.get(self.host + "/lifepoints/jobs/" + account['life_id'])['data']
+            account.update(identity)
             if not job:
                 freeRes.append(account)
             elif job.get('job_state')=='1':
@@ -225,11 +232,20 @@ class LifeReq(object):
         return HTTPRequest.put(self.host+"/lifepoints/cards/status/"+order_id,{'card_status':"2"})#0表示建卡,1表示卡到账，2表示已经转换
 #error
     def getAllError(self):
-        return HTTPRequest.get(self.host + "/lifepoints/errors/")['data']
+        return HTTPRequest.get(self.host + "/lifepoints/errors/emails/")['data']
     def getErrorByEmailID(self,email_id):
-        return HTTPRequest.get(self.host + "/lifepoints/errors/?email_id="+email_id)['data']
+        return HTTPRequest.get(self.host + "/lifepoints/errors/emails/?email_id="+email_id)['data']
     def addError(self,email_id,message,error_type):#0表示执行兑换后，并未在邮箱里找到订单号， -1表示邮箱被使用
-        return HTTPRequest.post(self.host + "/lifepoints/errors/",{'email_id':email_id,'message':message,'error_type':error_type})['data']
+        return HTTPRequest.post(self.host + "/lifepoints/errors/emails/",{'email_id':email_id,'message':message,'error_type':error_type})['data']
+
+    # error
+    def getAllIdentityError(self):
+        return HTTPRequest.get(self.host + "/lifepoints/errors/identities/")['data']
+    def getErrorByIdentityID(self, email_id):
+        return HTTPRequest.get(self.host + "/lifepoints/errors/identities/?identity_id=" + email_id)['data']
+    def addIdentityError(self, identity_id, message, error_type):  # 0表示无法切换ip到该地址对应的城市
+        return HTTPRequest.post(self.host + "/lifepoints/errors/identities/",
+                                {'identity_id': identity_id, 'message': message, 'error_type': error_type})['data']
     @staticmethod
     def generatePassword():
         lower = [random.choice(string.ascii_lowercase) for _ in range(2,5)]

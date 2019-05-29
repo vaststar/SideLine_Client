@@ -208,6 +208,7 @@ class MainPage(object):
         print('开始任务链接：',link)
         handles = self.chrome_driver.window_handles
         print('开始打开空白页')
+        self.chrome_driver.switch_to.window(handles[-1])
         self.chrome_driver.execute_script("window.open('about:blank');")
         print('打开空白页完成')
         while True:

@@ -110,7 +110,7 @@ class LifePointsRun(object):
             if email:
                 print('重新检查激活邮箱：', email['email_address'], email['email_id'])
                 RegisterPage().confirmRegister(email['email_id'], email['email_address'], email['email_auth_code'],
-                                               ('请验证您的会员资格',),
+                                               ('请验证您的会员资格','please verify your membership'),
                                                r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?')
         elif account['activate_state'] == '-1':
             # 再做一次任务，进行封号判断

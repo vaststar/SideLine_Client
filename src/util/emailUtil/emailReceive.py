@@ -162,7 +162,11 @@ class EmailReceive(object):
                         context.append(par.get_payload(decode=True).decode('utf-8'))
                     except Exception as e:
                         print(e)
-                        context.append(par.get_payload(decode=True).decode('gbk'))
+                        try:
+                            context.append(par.get_payload(decode=True).decode('gbk'))
+                        except Exception as e:
+                            print(e)
+                            context.append(par.get_payload())
             return context
         except Exception as e:
             print(e)

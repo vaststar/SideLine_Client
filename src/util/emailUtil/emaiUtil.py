@@ -10,14 +10,15 @@ class EmailUtil(object):
             print('find email wrong:',title)
             return None
         print('find email ok:',title)
-        # print(allRes)
+        print(allRes)
         pattern = re.compile(regular)
         for head,body in allRes:
-            for item in body:
-                co = pattern.match(item.replace('\r\n','').replace('\n',''))
-                if co:
-                    print('find email-web-link ok:',co.group(1))
-                    return co.group(1)
+            if body :
+                for item in body:
+                    co = pattern.match(item.replace('\r\n','').replace('\n',''))
+                    if co:
+                        print('find email-web-link ok:',co.group(1))
+                        return co.group(1)
         print('find link wrong')
         return None
 

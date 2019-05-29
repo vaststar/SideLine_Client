@@ -166,6 +166,7 @@ class RegisterPage(object):
     def confirmRegister(self,emailid,address,emailpassword,title,urlPattern):
         url = EmailUtil.getLink(address, emailpassword, title, urlPattern)
         if url:
+            url.replace("addressCheck=false","addressCheck=true")
             try:
                 if not self.chrome_driver:
                     self.initDriver()

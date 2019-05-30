@@ -50,7 +50,7 @@ class AgentUtil(object):
                 # chrome_driver.get('https://whoer.net')
                 sleep(3)
                 if num>3:
-                    print("ip检测失败")
+                    print("cannot detect ip")
                     return None
         try:
             print("开始检测ip信息")

@@ -27,11 +27,11 @@ class RegisterPage(object):
         try:
             self.initDriver(information['ua'])
             if self.register(information):
-                print('注册成功，开始写入数据库')
+                print('register ok,write to db')
                 if not LifeReq().RegNewAccount(information.get('email_id'),information.get('password'),information.get('identity_id'),information.get('browser_id')):
-                    print('写入数据库失败,邮箱id为：',information.get('email_id'))
+                    print('write to db wrong,email id is:',information.get('email_id'))
                     return
-                print('写入数据库成功,开始查找邮箱激活链接')
+                print('write to db ok, start check activelink')
                 #打开邮箱验证
                 time.sleep(10)
                 if self.confirmRegister(information.get('email_id'),information.get('email_address'),information.get('email_auth_code'),
@@ -180,10 +180,10 @@ class RegisterPage(object):
                 self.chrome_driver.get(url)
                 LifeReq().ActivateAccount(emailid)
                 time.sleep(5)
-                print('账号激活成功：',address)
+                print('active ok：',address)
                 return True
             except Exception as e:
-                print('账号激活失败：',address)
+                print('active wrong：',address)
                 logger.error('账号激活失败，账号：'+emailid)
                 print(e)
                 return False

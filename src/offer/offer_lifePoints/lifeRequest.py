@@ -15,17 +15,17 @@ class LifeReq(object):
         print(country)
         '''获取number个未注册信息，number=none表示全部获取'''
         allEmails=HTTPRequest.get(self.host+"/emails/")['data']
-        print('邮箱数量',len(allEmails))
+        print('all email number',len(allEmails))
         allIdentities=HTTPRequest.get(self.host+"/identities/")['data']
-        print('身份数量',len(allIdentities))
+        print('identity number',len(allIdentities))
         allBrowser=HTTPRequest.get(self.host+"/browsers/")['data']
-        print('ua数量',len(allBrowser))
+        print('ua number',len(allBrowser))
         allErrors = HTTPRequest.get(self.host + "/lifepoints/errors/emails/")['data']
-        print('问题邮箱数量', len(allErrors))
+        print('error email number', len(allErrors))
         allAccounts= HTTPRequest.get(self.host + "/lifepoints/accounts/")['data']
-        print('已注册账户数量',len(allAccounts))
+        print('registered account number',len(allAccounts))
         allIdentityErrors = HTTPRequest.get(self.host + "/lifepoints/errors/identities/")['data']
-        print('问题地址数量', len(allIdentityErrors))
+        print('error address number', len(allIdentityErrors))
         #获取可用email
         emails=[]
         for emailInfo in allEmails:
@@ -171,7 +171,7 @@ class LifeReq(object):
                 res.update(ua)
             result.append(res)
         if number and len(result) < number:
-            logger.info('获取不到足够可用任务，请查询是不是job表都被占用了，机器码：'+MachineID)
+            logger.info('no job available，please check the job table ，machine id：'+MachineID)
         return result
 
     def getJobByEmailAddr(self,emailaddress):

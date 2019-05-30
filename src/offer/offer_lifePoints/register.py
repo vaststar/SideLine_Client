@@ -104,10 +104,15 @@ class RegisterPage(object):
                     month = information['birthday'].split('-')[1]
                     day = information['birthday'].split('-')[2]
                     year = information['birthday'].split('-')[0]
-                    self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(year)
-                    self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(month)
-                    self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(day)
-                    self.chrome_driver.find_element_by_xpath('//*[@id="edit-mailing-address1--2"]').send_keys(information['address'])
+                    if information['country'] != "CHN":
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(month)
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(day)
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(year)
+                    else:
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(year)
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(month)
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-date-of-birth--2"]').send_keys(day)
+                        self.chrome_driver.find_element_by_xpath('//*[@id="edit-mailing-address1--2"]').send_keys(information['address'])
                     stateEle = Select(self.chrome_driver.find_element_by_xpath('//*[@id="edit-state--2"]'))
                     try:
                         if information['country'] != "CHN":

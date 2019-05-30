@@ -20,6 +20,15 @@ class EmailCollecter(object):
         return accounts
 
     @staticmethod
+    def getTXTEmail():
+        with open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))), 'resource',
+                         'email.txt'),'r') as f:
+            accounts = []
+            for lines in f.readlines():
+                accounts.append(tuple(lines.split('----')))
+        return accounts
+
+    @staticmethod
     def writeOneEmailToDB(emailaddress,emailpassword,authcode=None):
         if authcode is None:
             authcode=emailpassword

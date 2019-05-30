@@ -16,6 +16,7 @@ from src.offer import chromeName
 
 from src.LogMoule import logger
 
+from src.offer.offer_lifePoints.mainPage import MainPage
 class RegisterPage(object):
     def __init__(self):
         self.chrome_driver = None
@@ -33,8 +34,9 @@ class RegisterPage(object):
                 print('写入数据库成功,开始查找邮箱激活链接')
                 #打开邮箱验证
                 time.sleep(10)
-                self.confirmRegister(information.get('email_id'),information.get('email_address'),information.get('email_auth_code'),
-                                     ('请验证您的会员资格','please verify your membership'),r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?')
+                if self.confirmRegister(information.get('email_id'),information.get('email_address'),information.get('email_auth_code'),
+                                     ('请验证您的会员资格','please verify your membership'),r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?'):
+                    MainPage(information).doJob(1)
         except Exception as e:
             print(e)
         finally:
@@ -174,10 +176,12 @@ class RegisterPage(object):
                 LifeReq().ActivateAccount(emailid)
                 time.sleep(5)
                 print('账号激活成功：',address)
+                return True
             except Exception as e:
                 print('账号激活失败：',address)
                 logger.error('账号激活失败，账号：'+emailid)
                 print(e)
+                return False
 
 if __name__=='__main__':
     #{'email_address': '47029316@qq.com', 'email_auth_code': 'rvueixjdbjeb', 'email_id': 'f58af82061750242ac160003', 'email_password': 'ZZ115', 'address': '酒泉市玉门市', 'birthday': '1982-08-21', 'city': '酒泉市', 'country': 'CHN', 'firstname': '似', 'gender': 'male', 'identity_id': '00b90644618c11e98c0b0242ac190003', 'lastname': '吕', 'state': '甘肃省', 'zipcode': '735000', 'browser_id': 'f1012a18633b11e98d1d0242ac160003', 'ua': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.104 Safari', 'password': '9&td$PK0jO0!'}

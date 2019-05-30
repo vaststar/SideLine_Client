@@ -79,6 +79,7 @@ class LifePointsRun(object):
     def registerOne(information):
         registInformation=information
         if registInformation.get('country') != 'CHN':
+            print('change ip to information:',information)
             #外国号注册时需换ip
             while not AgentUtil.changeIP(city=registInformation.get('city'), state=registInformation.get('state'), country=registInformation.get('country')):
                 print('ip change failure,change another identity')
@@ -88,6 +89,7 @@ class LifePointsRun(object):
                 if not res:
                     print('there is no unregistered information')
                 registInformation=res[0]
+                print('change to :',registInformation)
                 if not registInformation:
                     print('information none')
                     break

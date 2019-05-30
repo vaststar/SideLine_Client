@@ -110,7 +110,7 @@ class LifePointsRun(object):
             # 检查邮箱
             email = LifeReq().getEmailByID(account['life_id'])
             if email:
-                print('重新检查激活邮箱：', email['email_address'], email['email_id'])
+                print('重新检查激活邮箱：', email)
                 RegisterPage().confirmRegister(email['email_id'], email['email_address'], email['email_auth_code'],
                                                ('请验证您的会员资格','please verify your membership'),
                                                r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?')

@@ -25,6 +25,7 @@ class EmailCollecter(object):
                          'email.txt'),'r') as f:
             accounts = []
             for lines in f.readlines():
+                lines=lines.replace("\\n","").replace("\\r","")
                 accounts.append(tuple(lines.split('----')))
         return accounts
 

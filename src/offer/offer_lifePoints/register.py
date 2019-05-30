@@ -128,7 +128,7 @@ class RegisterPage(object):
                         except Exception as e:
                             print(e)
                             cityEle.select_by_index(random.randint(1,len(cityEle.options)))
-                    self.chrome_driver.find_element_by_xpath('//*[@id="edit-postal-code--2"]').send_keys(information['zipcode'])
+                    self.chrome_driver.find_element_by_xpath('//*[@id="edit-postal-code--2"]').send_keys(int(information['zipcode']))
                     self.chrome_driver.find_element_by_xpath('//*[@id="edit-nextbutton1--2"]').click()
                     time.sleep(3)
                     # page3

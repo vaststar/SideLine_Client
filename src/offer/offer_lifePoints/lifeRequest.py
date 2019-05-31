@@ -171,7 +171,7 @@ class LifeReq(object):
                 res.update(ua)
             result.append(res)
         if number and len(result) < number:
-            logger.info('no job available，please check the job table ，machine id：'+MachineID)
+            logger.info('no job available,please check the job table ,machine id:'+MachineID)
         return result
 
     def getJobByEmailAddr(self,emailaddress):

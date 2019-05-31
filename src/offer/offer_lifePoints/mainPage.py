@@ -135,6 +135,7 @@ class MainPage(object):
         try:
             time.sleep(3)
             self.chrome_driver.switch_to.frame('survey-iframe')
+            time.sleep(1000000000)
             try:
                 peopleNumberXPath='//*[@id="sq-testsw-container-HH_SIZE_qartstool"]/div/div/div/div/div/div[2]/div/div/div/div/div/div[2]/div/div/div[2]/div[1]/div[7]/span'
                 WebDriverWait(self.chrome_driver, 10, 0.5).until(EC.presence_of_element_located((By.XPATH, peopleNumberXPath)))

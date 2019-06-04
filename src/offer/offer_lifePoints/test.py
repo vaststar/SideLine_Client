@@ -30,6 +30,11 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 # # 退出，清除浏览器缓存
 # time.sleep(100000)
 # chrome_driver.quit()
-from src.util.proxyAgent import AgentUtil
+# from src.util.proxyAgent import AgentUtil
 #AgentUtil.changeIP('Anchorage','AK','US')
-print(AgentUtil.get_IP_info())
+# print(AgentUtil.get_IP_info())
+# from src.util.emailUtil import EmailUtil
+# from src.offer.offer_lifePoints.lifeRequest import LifeReq
+# aa=EmailUtil.getLink('suenroqovey@yahoo.com', 'sdtrblodsjcvwxbc', ('请验证您的会员资格','please verify your membership'),r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?')
+# aa=aa.replace("addressCheck=false","addressCheck=true")
+# LifeReq().WriteActivateLink('19eafad282b111e99b0d0242ac180003',aa)

@@ -29,17 +29,17 @@ class MainPage(object):
         while True:
             if doNumber is not None:
                 if int(doNumber) <= currentNumber:
-                    print('账号任务次数完成')
+                    print('job number finish')
                     break
             exchangeThread=None
             currentNumber+=1
             try:
-                print('打开浏览器')
+                print('open chrome')
                 self.initDriver(self.information.get('ua'))#初始化浏览器
                 self.login(self.information.get('email_address'),self.information.get('password'))#登陆
                 if self.checkActivate():#做封号判断
                     self.doFirstLogin()#进行初次完整化信息
-                    print('登陆、初始化完成')
+                    print('login success')
                     points=self.getLifePoints(self.information.get('life_id'))#获取分数
                     if points is not None:
                         if points != self.information.get('points'):
@@ -47,17 +47,17 @@ class MainPage(object):
                             LifeReq().ChangeAccountPoints(self.information.get('life_id'), points)
                         if int(points) > 2850:
                             exchangeThread = threading.Thread(target=Exchange(self.information).doJob,args=(2850,))
-                            logger.info('进入兑换页:'+self.information['life_id'])
+                            logger.info('get into duihuan:'+self.information['life_id'])
                             exchangeThread.start()
                     self.getAllSearchLink()#获取所有任务链接
                     if len(self.allSearchLink) > 0:
                         self.dealAllSearch()#处理所有调查链接
                     else:
-                        print('没有可做的任务了')
+                        print('no research')
             except Exception as e:
-                print('任务失败：',self.information,e)
+                print('do job error',self.information,e)
             finally:
-                print('关闭浏览器')
+                print('close chrome')
                 self.chrome_driver.quit()
                 if exchangeThread:
                     exchangeThread.join()
@@ -103,14 +103,14 @@ class MainPage(object):
                         EC.visibility_of_element_located((By.XPATH, '//*[@id="accept_all_cookies"]')))
                     self.chrome_driver.find_element_by_xpath('//*[@id="accept_all_cookies"]').click()
                 except Exception as e:
-                    print('未找到同意cookie按钮',e)
+                    print('no cookie button',e)
                 finally:
                     self.chrome_driver.find_element_by_xpath('//*[@id="edit-contact-email"]').send_keys(email)
                     self.chrome_driver.find_element_by_xpath('//*[@id="edit-password"]').send_keys(password)
                     self.chrome_driver.find_element_by_xpath('//*[@id="edit-submit-button"]').click()
                     break
             except Exception as e:
-                print('登陆失败，次数：',logNumber,e)
+                print('login error ,try number:',logNumber,e)
                 self.chrome_driver.refresh()
     def checkActivate(self):
         '''检测是否封号'''
@@ -118,9 +118,9 @@ class MainPage(object):
             WebDriverWait(self.chrome_driver, 5, 0.5).until(
                 EC.visibility_of_element_located((By.CLASS_NAME, 'alert-danger')))
             errorMessage = self.chrome_driver.find_element_by_class_name('alert-danger').text
-            if '失效' in errorMessage:
+            if '失效' in errorMessage or 'sorry' in errorMessage or 'Sorry' in errorMessage:
                 print(errorMessage)
-                logger.info('似乎被封号了,请到life_points_account表中查看status为-1的账户：'+self.information['life_id'])
+                logger.info('accout login error,please check life_points_account status==-1'+self.information['life_id'])
                 #将状态置为-1
                 if self.information['activate_state']!='-1':
                     LifeReq().DeactivateAccount(self.information['life_id'])
@@ -128,46 +128,65 @@ class MainPage(object):
         except Exception as e:
             if self.information['activate_state']=='-1':
                 LifeReq().ActivateAccount(self.information['life_id'])
-            print('账号检测正常')
+            print('account detect normal.')
             return True
 
     def doFirstLogin(self):
         try:
             time.sleep(3)
             self.chrome_driver.switch_to.frame('survey-iframe')
-            time.sleep(1000000000)
+
             try:
                 peopleNumberXPath='//*[@id="sq-testsw-container-HH_SIZE_qartstool"]/div/div/div/div/div/div[2]/div/div/div/div/div/div[2]/div/div/div[2]/div[1]/div[7]/span'
                 WebDriverWait(self.chrome_driver, 10, 0.5).until(EC.presence_of_element_located((By.XPATH, peopleNumberXPath)))
                 self.chrome_driver.find_element_by_xpath(peopleNumberXPath).click()
             except Exception as e:
-                print('未获取到家庭成员检测',e)
+                print('no family memeber number',e)
             try:
                 self.chrome_driver.find_element_by_xpath('//*[@id="btn_continue"]').click()
                 self.chrome_driver.find_element_by_xpath('//*[@id="sq-testsw-container-HH_SIZE"]/div[3]').click()
             except Exception as e:
-                print('未获取到继续按钮',e)
+                print('no continue',e)
             try:
-                childNumberXPath='//*[@id="sq-testsw-container-NUMBER_OF_CHILDREN_qartstool"]/div/div/div/div[3]/div/div[2]'
+                self.chrome_driver.find_element_by_xpath('//*[@id="sq-testsw-container-HH_MEMBERS_qartstool"]/div/div/div[1]/div[1]/div/div[2]').click()
+                self.chrome_driver.find_element_by_xpath('//*[@id="sq-testsw-container-HH_MEMBERS_qartstool"]/div/div/div[1]/div[3]/div/div[2]').click()
+                self.chrome_driver.find_element_by_xpath('//*[@id="sq-testsw-container-HH_MEMBERS"]/div[3]').click()
+            except Exception as e:
+                print('no live with who',e)
+            try:
+                childNumberXPath='//*[@id="sq-testsw-container-NUMBER_OF_CHILDREN_qartstool"]/div/div/div/div[4]/div/div[2]'
                 WebDriverWait(self.chrome_driver, 10, 0.5).until(EC.presence_of_element_located((By.XPATH, childNumberXPath)))
                 self.chrome_driver.find_element_by_xpath(childNumberXPath).click()
             except Exception as e:
-                print('未获取到孩子数量检测',e)
+                print('no child number',e)
             try:
-                incomeXPath='//*[@id="sq-testsw-container-HH_Income_CN_qartstool"]/div/div/div[2]/div[4]/div/div[2]'
+                self.chrome_driver.find_element_by_xpath('//*[@id="sq-testsw-container-HISPANIC_DESCENT_qartstool"]/div/div/div/div[2]/div/div[2]').click()
+            except Exception as e:
+                print('no country ques',e)
+
+            try:
+                self.chrome_driver.find_element_by_xpath('//*[@id="sq-testsw-container-RACE_qartstool"]/div/div/div/div[1]/div/div[2]').click()
+            except Exception as e:
+                print('no color ques',e)
+            try:
+                incomeXPath=None
+                if self.information['country']=='US':
+                    incomeXPath='//*[@id="sq-testsw-container-HH_INCOME_US_qartstool"]/div/div/div[1]/div[14]/div/div[2]'
+                elif self.information['country']=="CHN":
+                    incomeXPath='//*[@id="sq-testsw-container-HH_Income_CN_qartstool"]/div/div/div[2]/div[4]/div/div[2]'
                 WebDriverWait(self.chrome_driver, 10, 0.5).until(EC.presence_of_element_located((By.XPATH, incomeXPath)))
                 self.chrome_driver.find_element_by_xpath(incomeXPath).click()
             except Exception as e:
-                print('未获取收入情况检测',e)
+                print('no income',e)
             try:
                 okXPath='/html/body/div[2]/div/section/article/div/div/div[2]/div/div[2]/p/button'
                 WebDriverWait(self.chrome_driver, 10, 0.5).until(EC.presence_of_element_located((By.XPATH, okXPath)))
                 self.chrome_driver.find_element_by_xpath(okXPath).click()
                 time.sleep(10)
             except Exception as e:
-                print('未获取到确认按钮',e)
+                print('no confirm',e)
         except Exception as e:
-            print('非初次登陆',e)
+            print('not firt login',e)
         finally:
             self.chrome_driver.switch_to.default_content()
 
@@ -198,6 +217,25 @@ class MainPage(object):
     def dealAllSearch(self):
         '''打开所有链接，如果崩溃，则默认全部重新开始'''
         # self.chrome_driver.refresh()
+        try:
+            for item in self.chrome_driver.find_elements_by_class_name('owl-item'):
+                try:
+                    for item1 in item.find_elements_by_class_name('survey-id'):
+                        print('url',item1.get_attribute('survey-link'))
+                        print('survy id:', item.text)
+                except Exception as e:
+                    print('调查链接获取失败', e)
+        except Exception as e:
+            print('aaa',e)
+
+        try:
+            eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div/div/table/tbody')
+            for item in eles.find_elements_by_tag_name('small'):
+                print(item.text)
+        except Exception as e:
+            print('ttt',e)
+
+        time.sleep(10000)
         for item in self.allSearchLink:
             try:
                 self.openOneLink(item)

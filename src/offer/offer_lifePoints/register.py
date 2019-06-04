@@ -150,31 +150,32 @@ class RegisterPage(object):
                         WebDriverWait(self.chrome_driver, 5, 0.5).until(
                             EC.visibility_of_element_located((By.CLASS_NAME, 'alert-danger')))
                         errorMessage=self.chrome_driver.find_element_by_class_name('alert-danger').text
-                        if '已经存在' in errorMessage:
+                        if '已经存在' in errorMessage or 'exist' in errorMessage:
                             print(errorMessage)
                             #记录该邮箱，废弃
-                            LifeReq().addError(information['email_id'], '该邮箱已经被其他用户注册', '-1')
-                            logger.error('注册失败，该邮箱似乎已经被其他人注册,账号：'+information['email_id'])
+                            LifeReq().addError(information['email_id'], 'email already be used', '-1')
+                            logger.error('email already be used:'+information['email_id'])
                         return False
                     except Exception as e:
-                        logger.error('注册失败，原因未知,账号：' + information['email_id'])
+                        logger.error('reg error, unkown reason:' + information['email_id'])
                         print(e)
                     time.sleep(5)
                     if 'pending' not in self.chrome_driver.current_url:
-                        logger.error('注册失败，原因未知,账号：' + information['email_id'])
-                        print('注册出错了')
+                        logger.error('reg error :' + information['email_id'])
+                        print('reg error')
                         return False
                     return True
             except Exception as e:
-                logger.error('注册失败，原因未知,账号：' + information['email_id'])
+                logger.error('reg error, unkown reason:' + information['email_id'])
                 print(e)
                 return False
 
     def confirmRegister(self,emailid,address,emailpassword,title,urlPattern):
         url = EmailUtil.getLink(address, emailpassword, title, urlPattern)
         if url:
-            url.replace("addressCheck=false","addressCheck=true")
+            url=url.replace("addressCheck=false","addressCheck=true")
             try:
+                LifeReq().WriteActivateLink(url)
                 if not self.chrome_driver:
                     self.initDriver()
                 self.chrome_driver.get(url)
@@ -184,7 +185,7 @@ class RegisterPage(object):
                 return True
             except Exception as e:
                 print('active wrong：',address)
-                logger.error('账号激活失败，账号：'+emailid)
+                logger.error('account activate link activate wrong,emailid is:'+emailid)
                 print(e)
                 return False
 

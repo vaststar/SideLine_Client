@@ -84,7 +84,15 @@ class LifeReq(object):
         '''注册一个账户，置为未激活状态'''
         result = HTTPRequest.post(self.host+"/lifepoints/accounts/",{"email_id":email_id,"password":password,"points":"0",
                                                                      "activate_state":"0","identity_id":identity_id,"browser_id":browser_id,
-                                                                     "register_date":datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})
+                                                                     "register_date":datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                                                     "activate_link":"0"})
+        return result['status']
+
+    def WriteActivateLink(self,email_id,activate_link):
+        '''补全激活链接'''
+        result = HTTPRequest.put(self.host + "/lifepoints/accounts/activate_link/" + email_id,
+                                 {"activate_link": activate_link})
+        print(result)
         return result['status']
 
     def ActivateAccount(self,email_id):

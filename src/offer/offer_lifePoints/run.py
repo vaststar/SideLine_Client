@@ -31,6 +31,7 @@ class LifePointsRun(object):
             cursor = coon.cursor()
             cursor.execute('select * from tokentable;')
             res = cursor.fetchall()
+            print('read tokentable ok')
             for item in res:
                 if res:
                     LifeReq().addResearch(item[1],item[2])
@@ -39,13 +40,18 @@ class LifePointsRun(object):
 
     @staticmethod
     def runOneJob(information,runTime,stayIP=False):
-        if stayIP or not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country')):
+        if not stayIP and not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country')):
             return None
+        print('do job')
         MainPage(information).doJob(runTime)
+        print('finish job')
 
     @staticmethod
     def runJob(jobCountry=("US",),jobNum=1,runTime=None,threadNum=1,stayInfo=False,stayIP=False,timeoutSec=24000):
-        LifePointsRun.writeAllToken_from_db()
+        print('update project token db')
+        # LifePointsRun.writeAllToken_from_db()
+        print('update project token db finish')
+        pool = threadpool.ThreadPool(threadNum)
         while True:
             #清空cache
             if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)),'cache')):
@@ -59,11 +65,12 @@ class LifePointsRun(object):
                 for item in accounts:
                     LifeReq().busyDoJob(item['life_id'])
                 # 创建多线程运行
-                pool = threadpool.ThreadPool(threadNum)
                 data = [((index, runTime, stayIP), None) for index in accounts]
                 requests = threadpool.makeRequests(LifePointsRun.runOneJob, data)
+                print(accounts)
                 [pool.putRequest(req) for req in requests]
                 pool.wait()
+                print('thread finish')
                 for item in accounts:
                     LifeReq().freeDoJob(item['life_id'])
             except Exception as e:

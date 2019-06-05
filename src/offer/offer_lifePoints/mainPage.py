@@ -214,11 +214,11 @@ class MainPage(object):
     def getLifePoints(self,life_id):
         try:
             points=self.chrome_driver.find_element_by_xpath('/html/body/header/div/div[2]/div/section/ul/li[3]/a/strong').text
-            print('分数',points)
+            print('points:',points)
             return points
         except Exception as e:
-            print('未找到分数值，诡异的情况，尽量人工查一下',e)
-            logger.info('未找到分数值，诡异的情况，尽量人工查一下,账号：'+self.information['life_id'])
+            print('cannot find lifepoints,check manually',e)
+            logger.info('cannot find points:'+self.information['life_id'])
             return None
 
     def getAllSearchLink(self):
@@ -309,7 +309,7 @@ class MainPage(object):
                 FingerPrint=res.group(1)
                 break
         # if FingerPrint is not None:
-        print('指纹id:',FingerPrint)
+        print('finger print id:',FingerPrint)
         urlLinks = MainPage.getFinalLink(allLink,FingerPrintID=FingerPrint)
         if len(urlLinks) > 0:
             self.finishOpen(urlLinks)
@@ -337,7 +337,7 @@ class MainPage(object):
                                 continue
                             urlLinks.append(url)
         except Exception as e:
-            print('日志读取失败',e)
+            print('log read error:',e)
         finally:
             return urlLinks
 
@@ -368,14 +368,14 @@ class MainPage(object):
             for item in Patterns:
                 res = item[0].match(url)
                 if res:
-                    print('发现任务url:', url)
-                    logger.info('任务url:'+url)
+                    print('find url:', url)
+                    logger.info('research url:'+url)
                     template = item[1]
                     li = []
                     for i in item[2]:
                         li.append(res.group(i))
                     matched=template.format(*li)
-                    logger.info('秒杀url:'+matched)
+                    logger.info('miaosha url:'+matched)
                     if matched not in resultUrlLink:
                         resultUrlLink.append(matched)
         return resultUrlLink

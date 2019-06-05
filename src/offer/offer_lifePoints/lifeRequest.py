@@ -103,6 +103,10 @@ class LifeReq(object):
         '''失效一个账户'''
         result = HTTPRequest.put(self.host+"/lifepoints/accounts/activate_states/"+email_id,{"activate_state":"-1"})
         return result['status']
+    def DoubleDeactivateAccount(self,email_id):
+        '''彻底弄死一个账户'''
+        result = HTTPRequest.put(self.host+"/lifepoints/accounts/activate_states/"+email_id,{"activate_state":"-2"})
+        return result['status']
     def ChangeAccountPoints(self,email_id,points):
         '''修改一个账户的分数'''
         result = HTTPRequest.put(self.host+"/lifepoints/accounts/points/"+email_id,{"points":points})

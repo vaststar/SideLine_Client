@@ -47,10 +47,11 @@ class LifePointsRun(object):
         print('finish job')
 
     @staticmethod
-    def runJob(jobCountry=("US",),jobNum=1,runTime=None,threadNum=1,stayInfo=False,stayIP=False,timeoutSec=24000):
-        print('update project token db')
-        # LifePointsRun.writeAllToken_from_db()
-        print('update project token db finish')
+    def runJob(jobCountry=("US",),jobNum=1,runTime=None,threadNum=1,stayInfo=False,stayIP=False,timeoutSec=24000,updateToken=False):
+        if updateToken:
+            print('update project token db')
+            LifePointsRun.writeAllToken_from_db()
+            print('update project token db finish')
         pool = threadpool.ThreadPool(threadNum)
         while True:
             #清空cache
@@ -62,6 +63,8 @@ class LifePointsRun(object):
             LifeReq().freeMachine()
             try:
                 accounts = LifeReq().getAvailableJob(country=jobCountry, number=jobNum)
+                if not accounts:
+                    continue
                 for item in accounts:
                     LifeReq().busyDoJob(item['life_id'])
                 # 创建多线程运行
@@ -125,7 +128,7 @@ class LifePointsRun(object):
             # 再做一次任务，进行封号判断
             print('重新检查封号:', account['life_id'])
             info = LifeReq().getJobByID(account['life_id'])
-            MainPage(info).doJob(1)
+            MainPage(info).reactivateAccount()
 
     @staticmethod
     def recheckAccounts(threadNum=1):
@@ -180,7 +183,7 @@ class LifePointsRun(object):
 
 if __name__=='__main__':
     try:
-        options, arg = getopt.getopt(sys.argv[1:], "",['threadNum=','country=','register=','runjob=','runTime=','timeoutSec=','stayInfo','stayIP','recheckAccount','recheckOrder','checkAll','checkCard'])
+        options, arg = getopt.getopt(sys.argv[1:], "",['threadNum=','country=','register=','runjob=','runTime=','timeoutSec=','stayInfo','stayIP','recheckAccount','recheckOrder','checkAll','checkCard','updateDB'])
     except getopt.GetoptError:
         sys.exit()
     runType=-1
@@ -194,6 +197,7 @@ if __name__=='__main__':
     sectimeout=24000
     keepIP=False
     keepInfo=False
+    updateDB =False#是否更新token表
     #检查订单号参数
     checkAllEmail=False
     for name,value in options:
@@ -229,12 +233,15 @@ if __name__=='__main__':
             keepInfo=True
         elif name in ('--checkAll',):
             checkAllEmail=True
+        elif name in ('--updateDB',):
+            updateDB=True
 
     if runType==0:
         print('cc',country)
         LifePointsRun.registerJob(regCountry=country,regNumber=registerNum,threadNum=runThread)
     elif runType==1:
-        LifePointsRun.runJob(jobCountry=country,jobNum=offerNumber, runTime=offerDoTime, threadNum=runThread,stayInfo=keepInfo,stayIP=keepIP,timeoutSec=sectimeout)
+        LifePointsRun.runJob(jobCountry=country,jobNum=offerNumber, runTime=offerDoTime, threadNum=runThread,
+                             stayInfo=keepInfo,stayIP=keepIP,timeoutSec=sectimeout,updateToken=updateDB)
     elif runType==2:
         LifePointsRun.recheckAccounts(threadNum=runThread)
     elif runType==3:

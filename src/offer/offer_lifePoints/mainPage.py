@@ -54,6 +54,8 @@ class MainPage(object):
                         self.dealAllSearch()#处理所有调查链接
                     else:
                         print('no research')
+                else:
+                    self.reactivateAccount()
             except Exception as e:
                 print('do job error',self.information,e)
             finally:
@@ -62,7 +64,19 @@ class MainPage(object):
                 if exchangeThread:
                     exchangeThread.join()
                 time.sleep(20)
-        # LifeReq().freeDoJob(self.information.get('life_id'))
+
+    def reactivateAccount(self):
+        try:
+            print('open chrome')
+            self.initDriver(self.information.get('ua'))  # 初始化浏览器
+            activateNum=0
+            while activateNum<2:
+                activateNum += 1
+                self.chrome_driver.get(self.information.get('activate_link'))
+                if self.checkActivate(firstCheck=False):
+                    return
+        except Exception as e:
+            print('reactivate error:',e)
 
     def initDriver(self,ua):
         '''初始化浏览器'''
@@ -112,7 +126,7 @@ class MainPage(object):
             except Exception as e:
                 print('login error ,try number:',logNumber,e)
                 self.chrome_driver.refresh()
-    def checkActivate(self):
+    def checkActivate(self,firstCheck=True):
         '''检测是否封号'''
         try:
             WebDriverWait(self.chrome_driver, 5, 0.5).until(
@@ -122,11 +136,18 @@ class MainPage(object):
                 print(errorMessage)
                 logger.info('accout login error,please check life_points_account status==-1'+self.information['life_id'])
                 #将状态置为-1
-                if self.information['activate_state']!='-1':
+                if firstCheck:
                     LifeReq().DeactivateAccount(self.information['life_id'])
-            return False
+                else:
+                    LifeReq().DoubleDeactivateAccount(self.information['life_id'])
+                return False
+            else:
+                if self.information['activate_state'] != '1':
+                    LifeReq().ActivateAccount(self.information['life_id'])
+                print('account detect normal.')
+                return True
         except Exception as e:
-            if self.information['activate_state']=='-1':
+            if self.information['activate_state']!='1':
                 LifeReq().ActivateAccount(self.information['life_id'])
             print('account detect normal.')
             return True
@@ -203,60 +224,81 @@ class MainPage(object):
     def getAllSearchLink(self):
         '''获取所有链接'''
         self.allSearchLink.clear()
-        for item in self.chrome_driver.find_elements_by_class_name('start-new-survey'):
-            try:
-                url=item.get_attribute('survey-link')
-                if len(url) > 5:
-                    self.allSearchLink.append(url)
-                    print('所有可用调查链接:',url)
-            except Exception as e:
-                print('调查链接获取失败',e)
-        #打乱任务顺序，防止每次都卡在第一个任务上
-        random.shuffle(self.allSearchLink)
+        try:
+            lineList = self.chrome_driver.find_elements_by_class_name('survey-id')
+            if lineList:
+                lineIter = iter(lineList)
+                while True:
+                    try:
+                        link1 = next(lineIter).get_attribute('survey-link')
+                        while not link1:
+                            link1 = next(lineIter).get_attribute('survey-link')
+                        sur1 = next(lineIter).text
+                        if sur1 and link1:
+                            self.allSearchLink.append((link1, sur1))
+                    except Exception as e:
+                        break
+        except Exception as e:
+            print('no new research',e)
+
+        try:
+            eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div/div/table/tbody')
+            for item in eles.find_elements_by_tag_name('tr'):
+                pa=item.find_elements_by_tag_name('td')[1]
+                self.allSearchLink.append((pa.find_element_by_class_name('start-new-survey').get_attribute('survey-link'), pa.find_elements_by_tag_name('small')[0].text))
+
+            eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div[1]/div/table/tbody')
+            for item in eles.find_elements_by_tag_name('tr'):
+                pa = item.find_elements_by_tag_name('td')[1]
+                self.allSearchLink.append((pa.find_element_by_class_name('start-new-survey').get_attribute('survey-link'),
+                                           pa.find_elements_by_tag_name('small')[0].text))
+
+            eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div[2]/div/table/tbody')
+            for item in eles.find_elements_by_tag_name('tr'):
+                pa = item.find_elements_by_tag_name('td')[1]
+                self.allSearchLink.append((pa.find_element_by_class_name('start-new-survey').get_attribute('survey-link'),
+                                           pa.find_elements_by_tag_name('small')[0].text))
+        except Exception as e:
+            print('no doing research',e)
+
+        if self.allSearchLink:
+            random.shuffle(self.allSearchLink)
+            print('find research:')
+            [print(i) for i in self.allSearchLink]
+
 
     def dealAllSearch(self):
         '''打开所有链接，如果崩溃，则默认全部重新开始'''
         # self.chrome_driver.refresh()
-        try:
-            for item in self.chrome_driver.find_elements_by_class_name('owl-item'):
-                try:
-                    for item1 in item.find_elements_by_class_name('survey-id'):
-                        print('url',item1.get_attribute('survey-link'))
-                        print('survy id:', item.text)
-                except Exception as e:
-                    print('调查链接获取失败', e)
-        except Exception as e:
-            print('aaa',e)
-
-        try:
-            eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div/div/table/tbody')
-            for item in eles.find_elements_by_tag_name('small'):
-                print(item.text)
-        except Exception as e:
-            print('ttt',e)
-
-        time.sleep(10000)
         for item in self.allSearchLink:
             try:
                 self.openOneLink(item)
             except Exception as e:
-                print('打开调查链接失败',item,e)
+                print('open research link error:',item,e)
 
     def openOneLink(self,link):
         '''打开一个任务'''
-        print('开始任务链接：',link)
+        print('start research:',link)
         handles = self.chrome_driver.window_handles
-        print('开始打开空白页')
         self.chrome_driver.switch_to.window(handles[-1])
         self.chrome_driver.execute_script("window.open('about:blank');")
-        print('打开空白页完成')
+
         while True:
             temp = set(self.chrome_driver.window_handles) - set(handles)
             if len(temp) > 0:
                 self.chrome_driver.switch_to.window(temp.pop())
-                self.chrome_driver.get(link)
+                self.chrome_driver.get(link[0])
                 break
-        self.doCurrentOne()
+        #通过查找链接，找到秒杀链接，暂时弃用，改成通过查找token表中对应的surveyid匹配秒杀链接
+        #self.doCurrentOne()
+        tokenID = LifeReq().getTokenByReasarchID(link[1])
+        if not tokenID:
+            print('can not find matched token,survey id is:',link[1])
+            return
+        print('find token:',tokenID,'survey id is:',link[1])
+        ProjectPatternURL = 'https://s.cint.com/Survey/Complete?ProjectToken={}'
+        miaoLink=ProjectPatternURL.format(tokenID)
+        self.finishOpen((miaoLink,))
 
     def doCurrentOne(self):
         allLink = self.getBrowserLinks()
@@ -341,15 +383,18 @@ class MainPage(object):
     def finishOpen(self,urls):
         '''打开秒杀链接'''
         for url in urls:
-            print("60秒后打开秒杀链接")
+            print("open final link after 120s")
             try:
                 time.sleep(120)
-                print("打开秒杀链接",url)
-                self.chrome_driver.execute_script("window.open('{}');".format(url))
-                print("秒杀链接打开完成，30妙后继续执行")
+                print("open final link:",url)
+                handles = self.chrome_driver.window_handles
+                self.chrome_driver.switch_to.window(handles[-1])
+                self.chrome_driver.get(url)
+                # self.chrome_driver.execute_script("window.open('{}');".format(url))
+                print("final link open donw, continue after 30s")
                 time.sleep(30)
             except Exception as e:
-                print('打开秒杀链接失败',e)
+                print('open final link error:',url,e)
 
 if __name__=='__main__':
     # MainPage(oneByone=True).doJob("285765981@qq.com","Z@z123456",doNumber=10)#.doJob("TalonHart5L@aol.com", "zd6J^9h!c")#

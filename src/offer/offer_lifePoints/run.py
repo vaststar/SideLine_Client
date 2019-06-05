@@ -40,7 +40,7 @@ class LifePointsRun(object):
 
     @staticmethod
     def runOneJob(information,runTime,stayIP=False):
-        if not stayIP and not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country')):
+        if not stayIP and not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country'),cityNoLimit=True):
             return None
         print('do job')
         MainPage(information).doJob(runTime)

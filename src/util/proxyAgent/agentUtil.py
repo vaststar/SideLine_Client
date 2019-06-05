@@ -5,12 +5,12 @@ from .Agent_911 import Agent_911
 
 class AgentUtil(object):
     @staticmethod
-    def changeIP(city=None, state='All', country="US"):
+    def changeIP(city=None, state='All', country="US",cityNoLimit=False):
         IPInfo = AgentUtil.get_IP_info()
         if IPInfo and IPInfo.get('city')==city:
             print('ip city match')
             return True
-        while not Agent_911.changeIP(city, state, country):
+        while not Agent_911.changeIP(city, state, country,cityNoLimit):
             print('ip change faliure,restart change')
             sleep(1)
         sleep(5)
@@ -19,10 +19,15 @@ class AgentUtil(object):
         if not IPInfo:
             print('cannot get ipaddress from whoer')
             return False
-
         if IPInfo.get('city')==city:
             print('ip city match')
             return True
+        elif cityNoLimit:
+            stateAll=IPInfo.get('state').split(' ')
+            stateSim=''
+            for i in stateAll:
+                stateSim+=i[0]
+            return stateSim==state
         else:
             print('ip is',IPInfo)
             print('not ',city)

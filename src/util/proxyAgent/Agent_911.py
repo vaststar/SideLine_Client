@@ -4,10 +4,10 @@ from .windowOperate import windowOperate
 
 class Agent_911(object):
     @staticmethod
-    def changeIP(city=None, state='All', country="US"):
+    def changeIP(city=None, state='All', country="US",cityNoLimit=False):
         if Agent_911.login_911():
             sleep(10)
-            return Agent_911.ip_new(city, state, country)
+            return Agent_911.ip_new(city, state, country,cityNoLimit)
         return False
 
     @staticmethod
@@ -87,12 +87,15 @@ class Agent_911(object):
 
 
     @staticmethod
-    def ip_new(city=None, state='All', country="US"):
+    def ip_new(city=None, state='All', country="US",cityNoLimit=False):
         print('Changing Ip')
         if city is None or len(city)<1:
             arg = ' -changeproxy/' + country
         else:
-            arg = ' -changeproxy/' + country + '/' + state + '/' + city
+            if cityNoLimit:
+                arg = ' -changeproxy/' + country + '/' + state + '/' + city+'/ -citynolimit'
+            else:
+                arg = ' -changeproxy/' + country + '/' + state + '/' + city
         print('changing ip ....')
         try:
             if not os.system(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(

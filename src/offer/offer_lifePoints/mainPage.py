@@ -49,13 +49,11 @@ class MainPage(object):
                             exchangeThread = threading.Thread(target=Exchange(self.information).doJob,args=(2850,))
                             logger.info('get into duihuan:'+self.information['life_id'])
                             exchangeThread.start()
-                    self.getAllSearchLink()#获取所有任务链接
-                    if len(self.allSearchLink) > 0:
-                        self.dealAllSearch()#处理所有调查链接
-                    else:
-                        print('no research')
+                    self.dealAllSearch()#处理所有调查链接
+
                 else:
                     self.reactivateAccount()
+
             except Exception as e:
                 print('do job error',self.information,e)
             finally:
@@ -74,9 +72,11 @@ class MainPage(object):
                 activateNum += 1
                 self.chrome_driver.get(self.information.get('activate_link'))
                 if self.checkActivate(firstCheck=False):
-                    return
+                    return True
+            return False
         except Exception as e:
             print('reactivate error:',e)
+            return False
 
     def initDriver(self,ua):
         '''初始化浏览器'''
@@ -225,6 +225,7 @@ class MainPage(object):
         '''获取所有链接'''
         self.allSearchLink.clear()
         try:
+            self.chrome_driver.switch_to.window(self.chrome_driver.window_handles[0])
             lineList = self.chrome_driver.find_elements_by_class_name('survey-id')
             if lineList:
                 lineIter = iter(lineList)
@@ -270,11 +271,23 @@ class MainPage(object):
     def dealAllSearch(self):
         '''打开所有链接，如果崩溃，则默认全部重新开始'''
         # self.chrome_driver.refresh()
-        for item in self.allSearchLink:
-            try:
-                self.openOneLink(item)
-            except Exception as e:
-                print('open research link error:',item,e)
+
+        self.getAllSearchLink()  # 获取所有任务链接
+        if len(self.allSearchLink) > 0:
+            for item in self.allSearchLink:
+                try:
+                    self.openOneLink(item)
+                except Exception as e:
+                    print('open research link error:',item,e)
+
+            self.getAllSearchLink()  # 获取所有任务链接
+            if len(self.allSearchLink) < 3:
+                LifeReq.setJobAvailableTime(self.information.get('life_id'), 72)
+        else:
+            print('no research')
+            LifeReq.setJobAvailableTime(self.information.get('life_id'), 72)
+            return
+
 
     def openOneLink(self,link):
         '''打开一个任务'''

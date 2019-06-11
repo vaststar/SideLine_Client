@@ -84,7 +84,7 @@ class LifeReq(object):
         '''注册一个账户，置为未激活状态'''
         result = HTTPRequest.post(self.host+"/lifepoints/accounts/",{"email_id":email_id,"password":password,"points":"0",
                                                                      "activate_state":"0","identity_id":identity_id,"browser_id":browser_id,
-                                                                     "register_date":datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                                                     "register_date":datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
                                                                      "activate_link":"0"})
         return result['status']
 
@@ -153,11 +153,12 @@ class LifeReq(object):
             account.update(identity)
             if not job:
                 freeRes.append(account)
-            elif job.get('job_state')=='1':
-                busyRes.append(account)
-            elif job.get('job_state')=='0':
-                doneRes.append(account)
-                doneJob.append(job)
+            if  datetime.datetime.utcnow() > datetime.datetime.strptime(job['available_time'],'%Y-%m-%d %H:%M:%S'):
+                if job.get('job_state')=='1':
+                    busyRes.append(account)
+                elif job.get('job_state')=='0':
+                    doneRes.append(account)
+                    doneJob.append(job)
         if number and len(freeRes) < number:
             if len(doneRes) >= (number-len(freeRes)):
                 #取n个最久远的已完成任务
@@ -227,8 +228,10 @@ class LifeReq(object):
     def freeTimeOutJob(self,timeoutSecs=18000):
         job = HTTPRequest.get(self.host + "/lifepoints/jobs/")['data']
         for item in job:
-            if (datetime.datetime.now()-datetime.datetime.strptime(item['update_time'],'%Y-%m-%d %H:%M:%S')).seconds>=timeoutSecs:
+            if (datetime.datetime.utcnow()-datetime.datetime.strptime(item['update_time'],'%Y-%m-%d %H:%M:%S')).seconds>=timeoutSecs:
                 self.freeDoJob(item['life_id'])
+    def setJobAvailableTime(self,life_id,nexthours):
+        HTTPRequest.put(self.host + "/lifepoints/jobs/?life_id=" + life_id, {'available_time': nexthours})
 
 #card
     def getAllCards(self):

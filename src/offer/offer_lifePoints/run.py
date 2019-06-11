@@ -64,6 +64,8 @@ class LifePointsRun(object):
             try:
                 accounts = LifeReq().getAvailableJob(country=jobCountry, number=jobNum)
                 if not accounts:
+                    print('no available job,wait 10s')
+                    time.sleep(10)
                     continue
                 for item in accounts:
                     LifeReq().busyDoJob(item['life_id'])

@@ -38,3 +38,5 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 # aa=EmailUtil.getLink('suenroqovey@yahoo.com', 'sdtrblodsjcvwxbc', ('请验证您的会员资格','please verify your membership'),r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?')
 # aa=aa.replace("addressCheck=false","addressCheck=true")
 # LifeReq().WriteActivateLink('19eafad282b111e99b0d0242ac180003',aa)
+import datetime
+print(datetime.datetime.utcnow()>datetime.datetime.strptime('2019-06-10 00:00:13','%Y-%m-%d %H:%M:%S'))

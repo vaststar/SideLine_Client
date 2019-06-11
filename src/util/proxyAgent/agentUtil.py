@@ -3,6 +3,14 @@ from time import sleep
 import re,os
 from .Agent_911 import Agent_911
 
+AmericanState={"AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
+               "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+               "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota",
+               "MS": "Mississippi", "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada", "NH": "New hampshire", "NJ": "New jersey",
+               "NM": "New mexico", "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon",
+               "PA": "Pennsylvania", "RI": "Rhode island", "SC": "South carolina", "SD": "South dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
+               "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming"}
+
 class AgentUtil(object):
     @staticmethod
     def changeIP(city=None, state='All', country="US",cityNoLimit=False):
@@ -20,11 +28,7 @@ class AgentUtil(object):
             return False
         print('ip is:',IPInfo)
         if cityNoLimit:
-            stateAll = IPInfo.get('state').split(' ')
-            stateSim = ''
-            for i in stateAll:
-                stateSim += i[0]
-            if stateSim == state:
+            if IPInfo.get('state').upper() == AmericanState.get(state).upper():
                 print('ip match')
                 return True
             print(" state doesn't match")

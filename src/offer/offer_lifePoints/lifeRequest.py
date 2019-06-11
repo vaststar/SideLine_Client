@@ -153,7 +153,7 @@ class LifeReq(object):
             account.update(identity)
             if not job:
                 freeRes.append(account)
-            if  datetime.datetime.utcnow() > datetime.datetime.strptime(job['available_time'],'%Y-%m-%d %H:%M:%S'):
+            elif  datetime.datetime.utcnow() > datetime.datetime.strptime(job['available_time'],'%Y-%m-%d %H:%M:%S'):
                 if job.get('job_state')=='1':
                     busyRes.append(account)
                 elif job.get('job_state')=='0':

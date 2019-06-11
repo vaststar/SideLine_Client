@@ -14,24 +14,26 @@ class AgentUtil(object):
             print('ip change faliure,restart change')
             sleep(1)
         sleep(5)
-        print('test ip address ')
         IPInfo = AgentUtil.get_IP_info()
         if not IPInfo:
             print('cannot get ipaddress from whoer')
             return False
-
+        print('ip is:',IPInfo)
         if cityNoLimit:
             stateAll = IPInfo.get('state').split(' ')
             stateSim = ''
             for i in stateAll:
                 stateSim += i[0]
-            return stateSim == state
-        elif IPInfo.get('city')==city:
-            print('ip city match')
-            return True
+            if stateSim == state:
+                print('ip match')
+                return True
+            print(" state doesn't match")
+            return False
         else:
-            print('ip is',IPInfo)
-            print('not ',city)
+            if IPInfo.get('city')==city:
+                print('ip match')
+                return True
+            print('not match city ', city)
             return False
 
     @staticmethod
@@ -59,7 +61,7 @@ class AgentUtil(object):
                     print("cannot detect ip")
                     return None
         try:
-            print("开始检测ip信息")
+            print("start test ip info")
             anonymityStr = chrome_driver.find_element_by_xpath(
                 '//*[@id="hidden_rating_link"]/span').text
             res = re.match(r'.*?(\d+).*?',anonymityStr)
@@ -77,5 +79,5 @@ class AgentUtil(object):
 
             return {'country':country,'state':state,'city':city,'postalCode':postalCode,'anonymity':anonymityNumber,'ip':ip}
         except Exception as e:
-            print(e)
+            print('cannot detect ip info',e)
             return None

@@ -19,15 +19,16 @@ class AgentUtil(object):
         if not IPInfo:
             print('cannot get ipaddress from whoer')
             return False
-        if IPInfo.get('city')==city:
+
+        if cityNoLimit:
+            stateAll = IPInfo.get('state').split(' ')
+            stateSim = ''
+            for i in stateAll:
+                stateSim += i[0]
+            return stateSim == state
+        elif IPInfo.get('city')==city:
             print('ip city match')
             return True
-        elif cityNoLimit:
-            stateAll=IPInfo.get('state').split(' ')
-            stateSim=''
-            for i in stateAll:
-                stateSim+=i[0]
-            return stateSim==state
         else:
             print('ip is',IPInfo)
             print('not ',city)

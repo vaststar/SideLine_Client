@@ -33,7 +33,7 @@ class AgentUtil(object):
             return False
         print('ip is:',ipInfo)
         if cityNoLimit:
-            if ipInfo.get('state').upper() == AmericanState.get(state).upper():
+            if ipInfo.get('state').upper() == AmericanState.get(state.upper()).upper():
                 print('ip match')
                 return True
             print(" state doesn't match")

@@ -15,26 +15,31 @@ class AgentUtil(object):
     @staticmethod
     def changeIP(city=None, state='All', country="US",cityNoLimit=False):
         IPInfo = AgentUtil.get_IP_info()
-        if IPInfo and IPInfo.get('city')==city:
+        if AgentUtil.CMP_IP(IPInfo,city,state,cityNoLimit):
             print('ip city match')
             return True
+
         while not Agent_911.changeIP(city, state, country,cityNoLimit):
             print('ip change faliure,restart change')
             sleep(1)
         sleep(5)
         IPInfo = AgentUtil.get_IP_info()
-        if not IPInfo:
+        return AgentUtil.CMP_IP(IPInfo,city,state,cityNoLimit)
+
+    @staticmethod
+    def CMP_IP(ipInfo=None,city=None, state='All', cityNoLimit=False):
+        if not ipInfo:
             print('cannot get ipaddress from whoer')
             return False
-        print('ip is:',IPInfo)
+        print('ip is:',ipInfo)
         if cityNoLimit:
-            if IPInfo.get('state').upper() == AmericanState.get(state).upper():
+            if ipInfo.get('state').upper() == AmericanState.get(state).upper():
                 print('ip match')
                 return True
             print(" state doesn't match")
             return False
         else:
-            if IPInfo.get('city')==city:
+            if ipInfo.get('city')==city:
                 print('ip match')
                 return True
             print('not match city ', city)
@@ -83,5 +88,5 @@ class AgentUtil(object):
 
             return {'country':country,'state':state,'city':city,'postalCode':postalCode,'anonymity':anonymityNumber,'ip':ip}
         except Exception as e:
-            print('cannot detect ip info',e)
+            print('cannot detect ip info')
             return None

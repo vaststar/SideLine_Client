@@ -40,9 +40,10 @@ class LifePointsRun(object):
 
     @staticmethod
     def runOneJob(information,runTime,stayIP=False):
+        print('do job', information)
         if not stayIP and not AgentUtil.changeIP(city=information.get('city'), state=information.get('state'), country=information.get('country'),cityNoLimit=True):
+            print('ip fail,job:',information)
             return None
-        print('do job')
         MainPage(information).doJob(runTime)
         print('finish job')
 
@@ -72,7 +73,7 @@ class LifePointsRun(object):
                 # 创建多线程运行
                 data = [((index, runTime, stayIP), None) for index in accounts]
                 requests = threadpool.makeRequests(LifePointsRun.runOneJob, data)
-                print(accounts)
+                # print(accounts)
                 [pool.putRequest(req) for req in requests]
                 pool.wait()
                 print('thread finish')

@@ -282,10 +282,10 @@ class MainPage(object):
 
             self.getAllSearchLink()  # 获取所有任务链接
             if len(self.allSearchLink) < 3:
-                LifeReq.setJobAvailableTime(self.information.get('life_id'), 72)
+                LifeReq().setJobAvailableTime(self.information.get('life_id'), 72)
         else:
             print('no research')
-            LifeReq.setJobAvailableTime(self.information.get('life_id'), 72)
+            LifeReq().setJobAvailableTime(self.information.get('life_id'), 72)
             return
 
 

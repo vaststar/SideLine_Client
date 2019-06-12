@@ -36,7 +36,7 @@ class AgentUtil(object):
             if ipInfo.get('state').upper() == AmericanState.get(state.upper()).upper():
                 print('ip match')
                 return True
-            print(" state doesn't match")
+            print(" state doesn't match",state)
             return False
         else:
             if ipInfo.get('city')==city:

@@ -354,10 +354,13 @@ class MainPage(object):
     @staticmethod
     def getFinalLink(urls,FingerPrintID=None):
         resultUrlLink=[]
+        # ProjectPattern = re.compile(
+        #     r'.*?([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})&.*?([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}(-[a-z0-9]{4})?-[a-z0-9]{12})'
+        # )
         ProjectPattern = re.compile(
-            r'.*?([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12})&.*?([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}(-[a-z0-9]{4})?-[a-z0-9]{12})'
+            r'.*?ProjectToken=([a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}).*?'
         )
-        ProjectPatternURL = 'https://s.cint.com/Survey/Complete?ProjectToken={}&ids={}'
+        ProjectPatternURL = 'https://s.cint.com/Survey/Complete?ProjectToken={}'#&ids={}'
         YougovPattern = re.compile(
             r'.*?yougov.com/(.*?)'
         )
@@ -372,7 +375,7 @@ class MainPage(object):
         EPatternURL = 'http://www.globaltestmarket.com/20/survey/finished.phtml?ac={}&sn={}&lang=E&gh={}'
         Patterns=[(YougovPattern,YougovPatternURL,[1]),
                   (CHMPattern,CHMPatternURL,[1,2,3]),(EPattern,EPatternURL,[1,2,3]),
-                  (ProjectPattern, ProjectPatternURL, [2, 1])]
+                  (ProjectPattern, ProjectPatternURL, [1])]
         for url in urls:
             print(url)
             for item in Patterns:

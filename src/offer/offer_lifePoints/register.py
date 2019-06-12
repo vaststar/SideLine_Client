@@ -118,7 +118,7 @@ class RegisterPage(object):
                         if information['country'] != "CHN":
                             stateEle.select_by_visible_text(self.AmericanState.get(information['state']))
                         else:
-                            stateEle.select_by_visible_text(information['state'])
+                            stateEle.select_by_visible_text(self.AmericanState.get(information['state']))
                     except Exception as e:
                         print(e)
                         stateEle.select_by_index(random.randint(1,len(stateEle.options)))
@@ -175,7 +175,7 @@ class RegisterPage(object):
         if url:
             url=url.replace("addressCheck=false","addressCheck=true")
             try:
-                LifeReq().WriteActivateLink(url)
+                LifeReq().WriteActivateLink(emailid,url)
                 if not self.chrome_driver:
                     self.initDriver()
                 self.chrome_driver.get(url)

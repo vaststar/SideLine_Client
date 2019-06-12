@@ -123,13 +123,13 @@ class LifePointsRun(object):
             # 检查邮箱
             email = LifeReq().getEmailByID(account['life_id'])
             if email:
-                print('重新检查激活邮箱：', email)
+                print('recheck email link:', email)
                 RegisterPage().confirmRegister(email['email_id'], email['email_address'], email['email_auth_code'],
                                                ('请验证您的会员资格','please verify your membership'),
                                                r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?')
         elif account['activate_state'] == '-1':
             # 再做一次任务，进行封号判断
-            print('重新检查封号:', account['life_id'])
+            print('reopen activate link:', account['life_id'])
             info = LifeReq().getJobByID(account['life_id'])
             MainPage(info).reactivateAccount()
 

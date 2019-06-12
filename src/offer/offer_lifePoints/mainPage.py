@@ -402,9 +402,16 @@ class MainPage(object):
                 print("open final link:",url)
                 handles = self.chrome_driver.window_handles
                 self.chrome_driver.switch_to.window(handles[-1])
-                self.chrome_driver.get(url)
+                if len(handles)<=1:
+                    self.chrome_driver.execute_script("window.open('about:blank');")
+                    temp = set(self.chrome_driver.window_handles) - set(handles)
+                    if len(temp) > 0:
+                        self.chrome_driver.switch_to.window(temp.pop())
+                        self.chrome_driver.get(url)
+                else:
+                    self.chrome_driver.get(url)
                 # self.chrome_driver.execute_script("window.open('{}');".format(url))
-                print("final link open donw, continue after 30s")
+                print("final link open done, continue after 30s")
                 time.sleep(30)
             except Exception as e:
                 print('open final link error:',url,e)

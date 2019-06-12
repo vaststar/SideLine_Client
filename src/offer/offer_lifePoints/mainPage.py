@@ -281,7 +281,7 @@ class MainPage(object):
                     print('open research link error:',item,e)
         else:
             print('no research')
-        
+
         if len(self.allSearchLink) < 3:
             LifeReq().setJobAvailableTime(self.information.get('life_id'), 72)
 
@@ -303,11 +303,13 @@ class MainPage(object):
         tokenID = LifeReq().getTokenByReasarchID(link[1])
         if not tokenID:
             print('can not find matched token,survey id is:',link[1])
-            return
-        print('find token:',tokenID,'survey id is:',link[1])
-        ProjectPatternURL = 'https://s.cint.com/Survey/Complete?ProjectToken={}'
-        miaoLink=ProjectPatternURL.format(tokenID)
-        self.finishOpen((miaoLink,))
+            print('do manually')
+            self.doCurrentOne()
+        else:
+            print('find token:',tokenID,'survey id is:',link[1])
+            ProjectPatternURL = 'https://s.cint.com/Survey/Complete?ProjectToken={}'
+            miaoLink=ProjectPatternURL.format(tokenID)
+            self.finishOpen((miaoLink,))
 
     def doCurrentOne(self):
         allLink = self.getBrowserLinks()

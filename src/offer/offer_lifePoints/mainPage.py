@@ -283,6 +283,7 @@ class MainPage(object):
             print('no research')
 
         if len(self.allSearchLink) < 3:
+            print('research number:',len(self.allSearchLink))
             LifeReq().setJobAvailableTime(self.information.get('life_id'), 72)
 
     def openOneLink(self,link):

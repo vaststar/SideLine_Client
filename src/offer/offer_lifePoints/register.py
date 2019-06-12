@@ -116,9 +116,9 @@ class RegisterPage(object):
                     stateEle = Select(self.chrome_driver.find_element_by_xpath('//*[@id="edit-state--2"]'))
                     try:
                         if information['country'] != "CHN":
-                            stateEle.select_by_visible_text(self.AmericanState.get(information['state']))
+                            stateEle.select_by_visible_text(information['state'])
                         else:
-                            stateEle.select_by_visible_text(self.AmericanState.get(information['state']))
+                            stateEle.select_by_visible_text(self.AmericanState.get(information['state'].upper()))
                     except Exception as e:
                         print(e)
                         stateEle.select_by_index(random.randint(1,len(stateEle.options)))

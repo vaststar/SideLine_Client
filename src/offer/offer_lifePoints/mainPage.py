@@ -279,15 +279,11 @@ class MainPage(object):
                     self.openOneLink(item)
                 except Exception as e:
                     print('open research link error:',item,e)
-
-            self.getAllSearchLink()  # 获取所有任务链接
-            if len(self.allSearchLink) < 3:
-                LifeReq().setJobAvailableTime(self.information.get('life_id'), 72)
         else:
             print('no research')
+        
+        if len(self.allSearchLink) < 3:
             LifeReq().setJobAvailableTime(self.information.get('life_id'), 72)
-            return
-
 
     def openOneLink(self,link):
         '''打开一个任务'''

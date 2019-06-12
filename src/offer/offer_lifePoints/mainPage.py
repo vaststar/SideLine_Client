@@ -288,18 +288,16 @@ class MainPage(object):
     def openOneLink(self,link):
         '''打开一个任务'''
         print('start research:',link)
-        handles = self.chrome_driver.window_handles
-        self.chrome_driver.switch_to.window(handles[-1])
-        self.chrome_driver.execute_script("window.open('about:blank');")
-
         while True:
+            handles = self.chrome_driver.window_handles
+            self.chrome_driver.switch_to.window(handles[-1])
+            self.chrome_driver.execute_script("window.open('about:blank');")
             temp = set(self.chrome_driver.window_handles) - set(handles)
             if len(temp) > 0:
                 self.chrome_driver.switch_to.window(temp.pop())
                 self.chrome_driver.get(link[0])
                 break
-        #通过查找链接，找到秒杀链接，暂时弃用，改成通过查找token表中对应的surveyid匹配秒杀链接
-        #self.doCurrentOne()
+        #先匹配token，匹配不到就自己做
         tokenID = LifeReq().getTokenByReasarchID(link[1])
         if not tokenID:
             print('can not find matched token,survey id is:',link[1])

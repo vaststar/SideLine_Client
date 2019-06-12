@@ -68,7 +68,7 @@ class MainPage(object):
             print('open chrome')
             self.initDriver(self.information.get('ua'))  # 初始化浏览器
             activateNum=0
-            while activateNum<2:
+            while activateNum<=3:
                 activateNum += 1
                 self.chrome_driver.get(self.information.get('activate_link'))
                 if self.checkActivate(firstCheck=False):

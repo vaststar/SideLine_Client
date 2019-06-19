@@ -45,8 +45,11 @@ class MainPage(object):
                         if points != self.information.get('points'):
                             # 写入数据库
                             LifeReq().ChangeAccountPoints(self.information.get('life_id'), points)
-                        if int(points) > 2850:
-                            exchangeThread = threading.Thread(target=Exchange(self.information).doJob,args=(2850,))
+                        limi=2850
+                        if self.information.get('country')!="CHN":
+                            limi=600
+                        if int(points) > limi:
+                            exchangeThread = threading.Thread(target=Exchange(self.information).doJob,args=(limi,))
                             logger.info('get into duihuan:'+self.information['life_id'])
                             exchangeThread.start()
                     self.dealAllSearch()#处理所有调查链接

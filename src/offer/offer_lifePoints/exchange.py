@@ -91,6 +91,7 @@ class Exchange(object):
 
     def getLifePoints(self):
         try:
+            self.lifePoints = self.information.get('points')
             points=self.chrome_driver.find_element_by_xpath('/html/body/header/div/div[2]/div/section/ul/li[3]/a/strong').text
             self.lifePoints=int(points)
             print('lifepoints',points)
@@ -107,7 +108,10 @@ class Exchange(object):
                 self.chrome_driver.switch_to.window(temp.pop())
                 self.chrome_driver.get('https://www.lifepointspanel.com/member/redeempoints')
                 break
-        self.chrome_driver.get('https://www.perksplus.com/PerksPlusV2/Secure/RewardZone/ProductDetail.aspx?ProductID=b009c8e7-944f-40b8-94a9-153285e75346')
+        if self.information.get("country")=="CHN":
+            self.chrome_driver.get('https://www.perksplus.com/PerksPlusV2/Secure/RewardZone/ProductDetail.aspx?ProductID=b009c8e7-944f-40b8-94a9-153285e75346')
+        else:
+            self.chrome_driver.get("https://www.perksplus.com/PerksPlusV2/Secure/RewardZone/ProductDetail.aspx?ProductID=1e06d4d3-7be4-440f-b049-c8c5cf1dc0f5")
         time.sleep(5)
 
         addToXPath='//*[@id="ctl00_ContentPlaceHolder1_AddToCartButton"]'
@@ -126,6 +130,11 @@ class Exchange(object):
                 self.chrome_driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_ViewShippingAddress1_createNewAddressLink"]').click()
                 time.sleep(3)
                 identity=LifeReq().getIdentityByID(self.information['identity_id'])
+                try:
+                    name='//*[@id="ctl00_ContentPlaceHolder1_EditShippingAddress1_fullNameTextBox"]'
+                    self.chrome_driver.find_element_by_xpath(name).send_keys(identity['firstname'])
+                except Exception as e:
+                    pass
                 addr1='//*[@id="ctl00_ContentPlaceHolder1_EditShippingAddress1_addressLine1TextBox"]'
                 self.chrome_driver.find_element_by_xpath(addr1).send_keys(identity['address'])
                 city='//*[@id="ctl00_ContentPlaceHolder1_EditShippingAddress1_cityNameTextBox"]'

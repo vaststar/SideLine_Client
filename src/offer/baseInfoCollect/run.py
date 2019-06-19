@@ -102,7 +102,7 @@ if __name__=="__main__":
                 random.randint(1, 28)).zfill(2)
             country='US'
             gender='female'
-            firstName,lastName,zipcode,state,city,address = sheet.cell_value(i, 0), sheet.cell_value(i, 1), sheet.cell_value(i, 2), sheet.cell_value(i, 3), sheet.cell_value(i, 4), sheet.cell_value(i, 5)
+            firstName,lastName,zipcode,state,city,address = sheet.cell_value(i, 0), sheet.cell_value(i, 1), int(sheet.cell_value(i, 2)), sheet.cell_value(i, 3), sheet.cell_value(i, 4), sheet.cell_value(i, 5)
             IdentityCollecter_US_XLSX.writeOneIdentityToDB(lastName, firstName, gender, birthday, address, city,
                                                            state, country,
                                                            zipcode)

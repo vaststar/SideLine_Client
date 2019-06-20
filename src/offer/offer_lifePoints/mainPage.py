@@ -250,20 +250,25 @@ class MainPage(object):
             for item in eles.find_elements_by_tag_name('tr'):
                 pa=item.find_elements_by_tag_name('td')[1]
                 self.allSearchLink.append((pa.find_element_by_class_name('start-new-survey').get_attribute('survey-link'), pa.find_elements_by_tag_name('small')[0].text))
+        except Exception as e:
+            pass
 
+        try:
             eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div[1]/div/table/tbody')
             for item in eles.find_elements_by_tag_name('tr'):
                 pa = item.find_elements_by_tag_name('td')[1]
                 self.allSearchLink.append((pa.find_element_by_class_name('start-new-survey').get_attribute('survey-link'),
                                            pa.find_elements_by_tag_name('small')[0].text))
-
+        except Exception as e:
+            pass
+        try:
             eles=self.chrome_driver.find_element_by_xpath('//*[@id="panel"]/div/section/div/div/div[1]/div/div[2]/div/table/tbody')
             for item in eles.find_elements_by_tag_name('tr'):
                 pa = item.find_elements_by_tag_name('td')[1]
                 self.allSearchLink.append((pa.find_element_by_class_name('start-new-survey').get_attribute('survey-link'),
                                            pa.find_elements_by_tag_name('small')[0].text))
         except Exception as e:
-            print('no doing research',e)
+            pass
 
         if self.allSearchLink:
             random.shuffle(self.allSearchLink)

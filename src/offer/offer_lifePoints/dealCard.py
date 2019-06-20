@@ -39,23 +39,25 @@ class DealCard(object):
 
     def getFirstOrder(self):
         try:
-            allRes = EmailUtil.getEmail(self.information['email_address'], self.information['email_auth_code'], ('来自LifePoints的订购确认',)
+            allRes = EmailUtil.getEmail(self.information['email_address'], self.information['email_auth_code'], ('来自LifePoints的订购确认','Order Confirmation from')
                                         ,onlyUnsee=True,findAll=False)
             if allRes is None or allRes == []:
                 print('cannot find order:', self.information['email_address'])
                 return False
-            pattern=re.compile(r'.*?您的订单号.*?">(\w+)<.*?')
+            patterns=[re.compile(r'.*?您的订单号.*?">(\w+)<.*?'),re.compile(r'.*?Your Order Number.*?">(\w+)<.*?')]
             for head,body in allRes:
                 for item in body:
-                    res=pattern.match(item.replace('\r\n','').replace('\n',''))
-                    print(head)
-                    if res:
-                        cardInfo = LifeReq().getCardByOrderID(res.group(1))
-                        if not cardInfo:
-                            result=LifeReq().createJDOrder(res.group(1),'25',self.information['email_id'],head[-1])
-                            return result['status']
-                        else:
-                            print('already in database')
+                    for pattern in patterns:
+                        res=pattern.match(item.replace('\r\n','').replace('\n',''))
+                        print(head)
+                        if res:
+                            cardInfo = LifeReq().getCardByOrderID(res.group(1))
+                            if not cardInfo:
+                                result=LifeReq().createJDOrder(res.group(1),'25',self.information['email_id'],head[-1])
+                                return result['status']
+                            else:
+                                print('already in database')
+                            break
             return False
         except Exception as e:
             print('get first order',self.information['email_address'],e)
@@ -63,21 +65,23 @@ class DealCard(object):
     def getAllOrder(self):
         try:
             print(self.information)
-            allRes = EmailUtil.getEmail(self.information['email_address'], self.information['email_auth_code'], ('来自LifePoints的订购确认',)
+            allRes = EmailUtil.getEmail(self.information['email_address'], self.information['email_auth_code'], ('来自LifePoints的订购确认','Order Confirmation from')
                                         ,onlyUnsee=False,findAll=True)
             if allRes is None or allRes == []:
                 print('cannot find order:', self.information['email_address'])
                 return False
-            pattern=re.compile(r'.*?您的订单号.*?">(\w+)<.*?')
+            patterns = [re.compile(r'.*?您的订单号.*?">(\w+)<.*?'), re.compile(r'.*?Your Order Number.*?">(\w+)<.*?')]
             for head,body in allRes:
                 for item in body:
-                    res=pattern.match(item.replace('\r\n','').replace('\n',''))
-                    if res:
-                        cardInfo = LifeReq().getCardByOrderID(res.group(1))
-                        if not cardInfo:
-                            LifeReq().createJDOrder(res.group(1), '25', self.information['email_id'], head[-1])
-                        else:
-                                print('already in database')
+                    for pattern in patterns:
+                        res=pattern.match(item.replace('\r\n','').replace('\n',''))
+                        if res:
+                            cardInfo = LifeReq().getCardByOrderID(res.group(1))
+                            if not cardInfo:
+                                LifeReq().createJDOrder(res.group(1), '25', self.information['email_id'], head[-1])
+                            else:
+                                    print('already in database')
+                            break
         except Exception as e:
             print('get first order',self.information['email_address'],e)
 

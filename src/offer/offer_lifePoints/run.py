@@ -163,7 +163,7 @@ class LifePointsRun(object):
                 em = LifeReq().getEmailByID(item['email_id'])
                 if em:
                     fallEmail.append(em)
-        print('检测邮箱数量：',len(fallEmail))
+        print('check email number: ',len(fallEmail))
         pool = threadpool.ThreadPool(threadNum)
         data = [((index,), None) for index in fallEmail]
         requests = threadpool.makeRequests(LifePointsRun.checkOneEmailOrder, data)

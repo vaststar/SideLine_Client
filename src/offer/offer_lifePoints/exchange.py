@@ -1,4 +1,4 @@
-import os,time,re,json,random
+import os,time,re,json,random,datetime
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.support.wait import WebDriverWait
@@ -151,15 +151,22 @@ class Exchange(object):
                 print(e)
         try:
             self.chrome_driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_placeOrderButton"]').click()
-            logger.info('兑换成功：'+self.information['life_id'])
+            logger.info('done exchange,and get order from email:'+self.information['life_id'])
             #去邮箱获取订单号
             time.sleep(20)
-            if not DealCard(self.information).getFirstOrder():
-                #说明未取到当前的兑换订单，记录一下，
-                logger.error('去邮箱查找订单号失败:'+self.information['email_id'])
-                LifeReq().addError(self.information['email_id'],'已经兑换，但是并未查找到邮件，可能邮箱有问题，建议手动查看','0')
+            try:
+                label=self.chrome_driver.find_element_by_xpath('//*[@id="ctl00_ContentPlaceHolder1_ThankYouLabel"]').text
+                pattern = re.compile(r'.*?:\s+([a-zA-Z0-9]+).*?')
+                co=pattern.match(label)
+                if co:
+                    LifeReq().createJDOrder(co.group(1), '$5', self.information['email_id'], datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),)
+            except Exception as e:
+                if not DealCard(self.information).getFirstOrder():
+                    #说明未取到当前的兑换订单，记录一下，
+                    logger.error('cannot get order id from email after exchange:'+self.information['email_id'])
+                    LifeReq().addError(self.information['email_id'],'already exchange,but cannot find orderid in email,check it manually','0')
         except Exception as e:
-            logger.error('兑换失败：'+self.information['life_id']+' 请自行查看，或者等待下一轮任务兑换')
+            logger.error('exchange error:'+self.information['life_id']+' please check manually or wait for next run')
             print(e)
 
 

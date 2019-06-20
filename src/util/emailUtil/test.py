@@ -12,6 +12,7 @@ if __name__=='__main__':
     # EmailUtil.sendEmail("测试发送 <lid0lv72@21cn.com>", 'Dhu4368969',
     #                                           ["测试接收1 <lid0lv72@21cn.com>"],
     #                                           "标题", "内容")
-    print(EmailUtil.getLink('exepxswdkgl@yahoo.com', 'wtczdhmtxopbfgqz', ('请验证您的会员资格','please verify your membership'),
-                            r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?'))
-    # EmailUtil.getEmail('lid0lv72@21cn.com','Dhu4368969',('标题',),)
+
+    #print(EmailUtil.getLink('exepxswdkgl@yahoo.com', 'wtczdhmtxopbfgqz', ('请验证您的会员资格','please verify your membership'),
+     #                       r'.*?(https://lifepointspanel.com/doi-by-email/account\?domain.*?)\".*?'))
+    print(EmailUtil.getEmail('exepxswdkgl@yahoo.com','wtczdhmtxopbfgqz',title=('Order Confirmation',),onlyUnsee=False,findAll=False))

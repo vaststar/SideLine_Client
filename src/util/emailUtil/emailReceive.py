@@ -1,7 +1,6 @@
 import imaplib, email,os,re
 from werkzeug.utils import secure_filename
 from pypinyin import lazy_pinyin
-
 from .emailServer import EmailService
 
 class EmailReceive(object):
@@ -174,8 +173,8 @@ class EmailReceive(object):
 
 if __name__=='__main__':
     # a = EmailReceive('47029316@qq.com','rvueixdphgjdbjeb')
-    a = EmailReceive('BerthaThomasFZ@aol.com','SUw9UgLh')
-    print(a.getEmail(keyword=('请验证您的会员资格',),onlyUnsee=False,findAll=False))
+    a = EmailReceive('exepxswdkgl@yahoo.com','wtczdhmtxopbfgqz')
+    print(a.getEmail(keyword=None,onlyUnsee=False,findAll=True))
 
 
 
